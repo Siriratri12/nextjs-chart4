@@ -10,7 +10,6 @@ const DrillDownMap = dynamic(() => import("../components/DrillDownMap"), {
 
 export default function Page() {
   // ตั้งค่าเริ่มต้นให้เป็น 'faculty' เสมอ เนื่องจากเราจะลบตัวเลือก 'agency' ออก
-  // const [view, setView] = useState("faculty");
 
   return (
     <>
