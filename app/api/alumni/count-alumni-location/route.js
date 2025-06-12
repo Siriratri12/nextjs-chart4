@@ -1,92 +1,3 @@
-// import { NextResponse } from "next/server";
-
-// export async function GET() {
-//   try {
-//     const apiResponse = await fetch(
-//       "https://api2.oas.psu.ac.th/api/count-alumni-location"
-//     );
-//     if (!apiResponse.ok) {
-//       throw new Error(`API call failed: ${apiResponse.statusText}`);
-//     }
-//     const apiData = await apiResponse.json();
-
-//     const processedData = {
-//       name: "Thailand",
-//       center: [13.736717, 100.523186], // Center of Thailand for the country level
-//       children: [],
-//     };
-
-//     apiData.location_counts.forEach((provinceData) => {
-//       const provinceChildren = [];
-//       let provinceLatSum = 0;
-//       let provinceLonSum = 0;
-//       let provinceTambonCount = 0;
-
-//       provinceData.districts.forEach((districtData) => {
-//         const districtChildren = [];
-//         let districtLatSum = 0;
-//         let districtLonSum = 0;
-//         let districtTambonCount = 0;
-
-//         districtData.tambons.forEach((tambonData) => {
-//           if (tambonData.latitude && tambonData.longitude) {
-//             districtLatSum += tambonData.latitude;
-//             districtLonSum += tambonData.longitude;
-//             districtTambonCount++;
-
-//             provinceLatSum += tambonData.latitude;
-//             provinceLonSum += tambonData.longitude;
-//             provinceTambonCount++;
-
-//             districtChildren.push({
-//               name: tambonData.tambon_name_th,
-//               latitude: tambonData.latitude,
-//               longitude: tambonData.longitude,
-//               count: tambonData.count || 0,
-//             });
-//           }
-//         });
-
-//         const districtCenter =
-//           districtTambonCount > 0
-//             ? [
-//                 districtLatSum / districtTambonCount,
-//                 districtLonSum / districtTambonCount,
-//               ]
-//             : null; // Null if no valid tambons
-
-//         provinceChildren.push({
-//           name: districtData.district_name_th,
-//           center: districtCenter,
-//           children: districtChildren,
-//         });
-//       });
-
-//       const provinceCenter =
-//         provinceTambonCount > 0
-//           ? [
-//               provinceLatSum / provinceTambonCount,
-//               provinceLonSum / provinceTambonCount,
-//             ]
-//           : null; // Null if no valid tambons
-
-//       processedData.children.push({
-//         name: provinceData.province_name_th,
-//         center: provinceCenter,
-//         children: provinceChildren,
-//       });
-//     });
-
-//     return NextResponse.json(processedData);
-//   } catch (error) {
-//     console.error("API route error:", error);
-//     return NextResponse.json(
-//       { error: "Failed to process location data" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -103,7 +14,7 @@ export async function GET() {
       name: "Thailand",
       center: [13.736717, 100.523186],
       children: [],
-      count: 0, // << เพิ่ม: เริ่มต้นจำนวนรวมของประเทศ
+      count: 0,
     };
 
     let countryTotalCount = 0;
@@ -114,7 +25,7 @@ export async function GET() {
         let provinceLatSum = 0;
         let provinceLonSum = 0;
         let provinceTambonValidCount = 0;
-        let provinceTotalCount = 0; // << เพิ่ม: ผลรวมจำนวนของจังหวัด
+        let provinceTotalCount = 0;
 
         if (provinceData.districts && Array.isArray(provinceData.districts)) {
           provinceData.districts.forEach((districtData) => {
@@ -122,7 +33,7 @@ export async function GET() {
             let districtLatSum = 0;
             let districtLonSum = 0;
             let districtTambonValidCount = 0;
-            let districtTotalCount = 0; // << เพิ่ม: ผลรวมจำนวนของอำเภอ
+            let districtTotalCount = 0;
 
             if (districtData.tambons && Array.isArray(districtData.tambons)) {
               districtData.tambons.forEach((tambonData) => {
@@ -146,7 +57,7 @@ export async function GET() {
                     count: currentTambonCount,
                   });
                 }
-                districtTotalCount += currentTambonCount; // << เพิ่ม: บวกจำนวนตำบลเข้าผลรวมอำเภอ
+                districtTotalCount += currentTambonCount;
               });
             }
 
@@ -162,9 +73,9 @@ export async function GET() {
               name: districtData.district_name_th,
               center: districtCenter,
               children: districtChildren,
-              count: districtTotalCount, // << เพิ่ม: ใส่ผลรวมของอำเภอ
+              count: districtTotalCount,
             });
-            provinceTotalCount += districtTotalCount; // << เพิ่ม: บวกผลรวมอำเภอเข้าผลรวมจังหวัด
+            provinceTotalCount += districtTotalCount;
           });
         }
 
@@ -180,12 +91,12 @@ export async function GET() {
           name: provinceData.province_name_th,
           center: provinceCenter,
           children: provinceChildren,
-          count: provinceTotalCount, // << เพิ่ม: ใส่ผลรวมของจังหวัด
+          count: provinceTotalCount,
         });
-        countryTotalCount += provinceTotalCount; // << เพิ่ม: บวกผลรวมจังหวัดเข้าผลรวมประเทศ
+        countryTotalCount += provinceTotalCount;
       });
     }
-    processedData.count = countryTotalCount; // << เพิ่ม: ใส่ผลรวมของประเทศ
+    processedData.count = countryTotalCount;
 
     return NextResponse.json(processedData);
   } catch (error) {
